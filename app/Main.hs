@@ -54,7 +54,11 @@ moveSeries = do
 moveWrite :: StateT Point (WriterT String IO) ()
 moveWrite = do
   a1 <- state (update)
-  _ <- (lift . tell) (printf "\nfuck")
+  _ <- (lift . tell) (printf "\n" ++ show a1)
+  a1 <- state (update)
+  _ <- (lift . tell) (printf "\n" ++ show a1)
+  a1 <- state (update)
+  _ <- (lift . tell) (printf "\n" ++ show a1)
   return ()
 
 main :: IO ()
