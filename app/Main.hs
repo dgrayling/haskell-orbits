@@ -3,11 +3,15 @@ module Main where
 import Lib
 
 import Text.Printf (printf)
+import Control.Monad
+-- import Control.Monad.State (get)
+-- import Control.Monad.Loop as MLoop
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State
 import Control.Monad (forM_, when)
 import Control.Monad.Writer (WriterT, execWriterT, runWriterT, tell)
+
 
 -- import Control.Monad.Trans (liftIO)
 
@@ -51,15 +55,16 @@ moveSeries = do
   a3 <- state (update)
   return [a1,a2,a3]
 
-moveWrite :: StateT Point (WriterT String IO) ()
-moveWrite = do
-  a1 <- state (update)
-  _ <- (lift . tell) (printf "\n" ++ show a1)
-  a1 <- state (update)
-  _ <- (lift . tell) (printf "\n" ++ show a1)
+stuckWrite :: StateT Point (WriterT String IO) ()
+stuckWrite = do
   a1 <- state (update)
   _ <- (lift . tell) (printf "\n" ++ show a1)
   return ()
 
-main :: IO ()
-main = execWriterT (runStateT moveWrite p4) >>= putStrLn
+moveWrite :: StateT Point IO ()
+moveWrite = forever $ do
+  a1 <- state (update)
+  liftIO $ print a1
+
+-- main :: IO ()
+main = runStateT moveWrite p4 -- start loop at 10
