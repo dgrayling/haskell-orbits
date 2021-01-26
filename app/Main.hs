@@ -44,9 +44,6 @@ data Mass = Mass
   }
   deriving (Read,Show)
 
-data Force = Force [Double]
-  deriving (Read,Show)
-
 pointDistance :: Point -> Point -> Double
 pointDistance x y = distance (s x) (s y)
 
@@ -70,12 +67,17 @@ update p = (p',p')
       where x = addList (s p) (v p)
             y = v p
 
-massForce :: Double -> Mass -> Mass -> Force
-massForce g x y = Force (map (*magnitude) (displacement (s (p x)) (s (p y))))
-                    where 
-                      magnitude = (g*(m x)*(m y))/(s^2)
-                        where s = pointDistance (p x) (p y)
+massForce :: Double -> Mass -> Mass -> [Double]
+massForce g x y = map (*magnitude) (displacement (s (p x)) (s (p y)))
+  where 
+    magnitude = (g*(m x)*(m y))/(s^2)
+      where s = pointDistance (p x) (p y)
 
+totalMassForce :: Double -> Mass -> [Mass] -> [Double]
+totalMassForce g mass masses = foldl1 addList (map (massForce g mass) masses)
+
+-- accelerateMasses :: [Mass] -> [Mass]
+-- accelerateMasses 
 
 -- massAccelerate :: [Mass] -> ([Mass],[Mass])
 -- massAccelerate masses = (masses', masses)
