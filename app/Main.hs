@@ -55,8 +55,8 @@ p3 = Point [-1,-1] [0,0]
 
 p4 = Point [0,0] [1,0]
 
-m1 = Mass (Point [0.0,0.0,0.0] [0.0,0.0,0.0]) 1.0 1.0
-m2 = Mass (Point [1.0,1.0,1.0] [0.0,0.0,0.0]) 1.0 1.0
+m1 = Mass (Point [0.0,0.0,0.0] [0.0,0.0,0.0]) 100.0 10000.0
+m2 = Mass (Point [20.0,0.0,0.0] [0.0,4.0,0.0]) 1.0 100.0
 m3 = Mass (Point [2.0,2.0,2.0] [0.0,0.0,0.0]) 1.0 1.0
 m4 = Mass (Point [3.0,3.0,3.0] [-4.0,-2.0,1.0]) 1.0 1.0
 m5 = Mass (Point [-1.0,-1.0,-2.0] [1.0,3.0,4.0]) 1.0 1.0
@@ -105,7 +105,7 @@ accelerateMasses g masses = masses'
   where masses' = map (accelerateMassFromGravForceTuple g) (generateInteractions masses)
 
 accelerateMassesOne :: [Mass] -> [Mass]
-accelerateMassesOne = accelerateMasses 20.01
+accelerateMassesOne = accelerateMasses (-10)
 
 moveSeries :: State Point [Point]
 moveSeries = do
@@ -125,16 +125,22 @@ moveWrite = forever $ do
   a1 <- state (updatePoint)
   liftIO $ print a1
 
+runLoop :: StateT [Mass] IO ()
+runLoop = forM_ [1..10000] $ \_ -> do
+  _ <- state (updateMasses)
+  _ <- state (acccelerateMassesOneState)
+  return ()
+
 simulateSystem :: StateT [Mass] IO ()
 simulateSystem = forever $ do
+  _ <- runLoop
   a1 <- state (updateMasses)
   a2 <- state (acccelerateMassesOneState)
-  liftIO $ print a1
-  liftIO $ print a2
+  liftIO $ print (s $ p $ head a1) 
 
 -- movePair :: StateT [Mass] IO ()
 -- movePair = forever $ do
 
 
 -- main :: IO ()
-main = runStateT simulateSystem [m1,m2,m3] -- start loop at 10
+main = runStateT simulateSystem [m1,m2] -- start loop at 10
